@@ -116,7 +116,7 @@ if st.session_state.username in ["loter", "ghost"]:
 if st.session_state.user_role == "Admin":
         menu_options.append("👑 Админ-панель Loter")
         
-    choice = st.sidebar.radio("Навигация по сайту:", menu_options)
+choice = st.sidebar.radio("Навигация по сайту:", menu_options)
 
 # --- РАЗДЕЛ 1: ЧАТ С ИИ LOTTERY ---
 if choice == "🤖 Чат с Lottery":
