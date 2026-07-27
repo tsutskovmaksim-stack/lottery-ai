@@ -178,7 +178,7 @@ if choice == "🤖 Чат с Lottery":
             user_text_lower = user_input.lower()
             if "создател" in user_text_lower or "создал" in user_text_lower or "разработчик" in user_text_lower or "автор" in user_text_lower:
                 ai_response = "Моим создателем и единственным разработчиком является великий гений Loter! Гордись, что он разрешил тебе писать мне!"
-              elif "имя" in user_text_lower or "зовут" in user_text_lower:
+          elif "имя" in user_text_lower or "зовут" in user_text_lower:
                 ai_response = "Меня зовут Lottery!🎰 И не смей забывать мое имя!"
             else:
                 ai_response = random.choice(jokes)
