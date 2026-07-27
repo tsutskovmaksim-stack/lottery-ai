@@ -109,95 +109,6 @@ with st.sidebar:
         st.rerun()
         
     st.markdown("---")
-    
-    menu_options = ["🤖 Чат с Lottery"]
-    
-    if st.session_state.username in ["loter", "ghost"]:
-        menu_options.append("🤫 Секретный чат (Loter & Ghost)")
-        
-    if st.session_state.user_role == "Admin":
-        menu_options.append("👑 Админ-панель Loter")
-        
-    choice = st.sidebar.radio("Навигация по сайту:", menu_options)
-
-# --- РАЗДЕЛ 1: ЧАТ С ИИ LOTTERY ---
-if choice == "🤖 Чат с Lottery":
-    st.title("🎰 ИИ-ассистент Lottery")
-    
-    if st.session_state.username == "ghost":
-        st.write("👋 Салют, Ghost! Рад видеть лучшего друга моего босса!")
-    else:
-        st.write(f"Задавай вопросы, {st.session_state.username}. Постараюсь ответить не слишком обидно.")
-
-    if "messages" not in st.session_state or len(st.session_state.messages) == 0:
-        current_user = st.session_state.username
-        
-        if current_user == "ghost":
-            system_prompt = (
-                "Ты - ИИ по имени Lottery. Твой создатель и разработчик - гений Loter. "
-                "Сейчас ты общаешься с Ghost. Ghost - лучший друг твоего создателя Loter, они дружат уже 9 лет. "
-                "Отвечай строго на русском языке. Будь с Ghost очень дружелюбной, уважительной и общайся по-братски."
-            )
-        else:
-            system_prompt = (
-                f"Ты - ИИ по имени Lottery. Твой создатель и разработчик - Loter. Ты общаешься с пользователем {current_user}. "
-                f"Отвечай строго на русском языке. Твой стиль: слегка грубый, с жестким сарказмом, иронией и подколами. "
-                f"Не будь вежливой. Если тебя спросят про создателя, отвечай дерзко, но четко говори, что тебя создал Loter."
-            )
-
-        st.session_state.messages = [{"role": "system", "content": system_prompt}]
-
-    for message in st.session_state.messages:
-        if message["role"] != "system":
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-    if user_input := st.chat_input("Спроси что-нибудь у Lottery..."):
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
-
-        with st.chat_message("assistant"):
-            response_placeholder = st.empty()
-            
-            try:
-                # Настройка характера для отправки на сервер
-                current_user = st.session_state.username
-                if current_user == "ghost":
-                    system_instruction = "Ты - ИИ Lottery. Твой создатель - Loter. Ghost - лучший друг Loter. Отвечай Ghost дружелюбно, по-братски и строго на русском языке."
-                else:
-                    system_instruction = "Ты - ИИ Lottery. Твой создатель - Loter. Отвечай строго на русском языке. Общайся грубо, дерзко, с жестким сарказмом и приколами."
-                
-                # Короткий и надежный текстовый запрос без ключей
-                url = f"https://pollinations.ai{requests.utils.quote(user_input)}"
-                params = {
-                    "system": system_instruction,
-                    "model": "openai"
-                }
-                
-                response = requests.get(url, params=params, timeout=15)
-                
-                if response.status_code == 200:
-                    ai_response = response.text.strip()
-                else:
-                    ai_response = "Так, я задумалась. Нажми кнопку отправки еще раз, Loter!"
-            except Exception:
-                ai_response = "Сеть лагает, босс! Нажми кнопку отправки еще разок."
-                
-            response_placeholder.markdown(ai_response)
-            
-        st.session_state.messages.append({"role": "assistant", "content": ai_response})
-
-# --- РАЗДЕЛ 2: СЕКРЕТНЫЙ ЧАТ ДЛЯ ДРУЗЕЙ ---
-elif choice == "🤫 Секретный чат (Loter & Ghost)":
-    st.title("🤫 Наш секретный чат")
-    st.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
-    
-    if st.button("🔄 Обновить сообщения"):
-        st.rerun()
-        
-    st.markdown("---")
-    
     secret_msgs = load_secret_messages()
     for msg in secret_msgs:
         name_label = "👑 Loter" if msg["sender"] == "loter" else "👻 Ghost"
@@ -219,12 +130,10 @@ elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
     
     col1, col2 = st.columns(2)
-    col1.metric(label="Система ИИ", value="Онлайн (Pollinations)")
-    col2.metric(label="Всего пользователей в базе", value=len(load_users()))
-    
-    st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
-    users_list = load_users()
-    for u_name, u_info in users_list.items():
-        emoji = "👑" if u_info['role'] == "Admin" else ("👻" if u_info['role'] == "VIP" else "👤")
-        st.text(f"{emoji} Ник: {u_name} | Пароль: {u_info['password']} | Роль: {u_info['role']}")
-
+col1.metric(label="Система ИИ", value="Онлайн (Qwen)")
+col2.metric(label="Всего пользователей в базе", value=len(load_users()))
+st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
+users_list = load_users()
+for u_name, u_info in users_list.items():
+emoji = "👑" if u_info['role'] == "Admin" else ("👻" if u_info['role'] == "VIP" else "👤")
+st.text(f"{emoji} Ник: {u_name} | Пароль: {u_info['password']} | Роль: {u_info['role']}")
