@@ -189,16 +189,17 @@ elif choice == "🤫 Секретный чат (Loter & Ghost)":
     for msg in secret_msgs:
         name_label = "👑 Loter" if msg["sender"] == "loter" else "👻 Ghost"
         st.markdown(f"**[{msg['time']}] {name_label}:** {msg['text']}")
-  with st.form(key="secret_msg_form", clear_on_submit=True)
-
+        
+    st.markdown("---")
+    
+    with st.form(key="secret_msg_form", clear_on_submit=True):
         secret_input = st.text_input("Введите сообщение для друга...", key="sec_input")
         submit_secret = st.form_submit_button("Отправить 🚀")
         
         if submit_secret and secret_input.strip():
             save_secret_message(st.session_state.username, secret_input.strip())
             st.success("Отправлено!")
-            st.rerun()      
-    
+            st.rerun()
 # --- РАЗДЕЛ 3: АДМИН-ПАНЕЛЬ LOTER ---
 elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
