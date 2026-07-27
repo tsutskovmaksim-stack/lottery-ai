@@ -191,7 +191,7 @@ elif choice == "🤫 Секретный чат (Loter & Ghost)":
     with st.form(key="secret_msg_form", clear_on_submit=True):
         secret_input = st.text_input("Введите сообщение для друга...", key="sec_input")
     submit_secret = st.form_submit_button("Отправить 🚀")
-            save_secret_message(st.session_state.username, secret_input.strip())
+        save_secret_message(st.session_state.username, secret_input.strip())
             st.success("Отправлено!")
             st.rerun()
 
