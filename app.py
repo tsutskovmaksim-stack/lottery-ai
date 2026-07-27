@@ -110,7 +110,7 @@ st.markdown("---")
     
 menu_options = ["🤖 Чат с Lottery"]
     
-    if st.session_state.username in ["loter", "ghost"]:
+if st.session_state.username in ["loter", "ghost"]:
         menu_options.append("🤫 Секретный чат (Loter & Ghost)")
         
     if st.session_state.user_role == "Admin":
