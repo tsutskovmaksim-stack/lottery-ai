@@ -1,16 +1,14 @@
+
 import streamlit as st
 import json
 import os
 import requests
 from datetime import datetime
 
-# 1. Настройки страницы
+# 1. Базовые настройки страницы
 st.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
 
-# Твой официальный стабильный ключ Google Gemini
-GOOGLE_API_KEY = "AQ.Ab8RN6LtTT9aNUpq4ykHH9wxnwT68pcbHD9C7dvwEDz8FFt26A"
-
-# Имена файлов для баз данных
+# Имена файлов для баз данных прямо на сервере
 DB_FILE = "users_db.json"
 SECRET_CHAT_FILE = "secret_chat.json"
 
@@ -136,14 +134,14 @@ if choice == "🤖 Чат с Lottery":
         
         if current_user == "ghost":
             system_prompt = (
-                "Ты - ИИ по имени Lottery. Твой создатель и единственный разработчик - гений Loter. "
-                "Сейчас ты общаешься с Ghost. Ghost - лучший друг твоего создателя Loter, они дружат уже 9 лет (с 1 сентября). "
-                "Ты должна отвечать Ghost очень дружелюбно, уважительно и тепло, помогая ему во всем на русском языке."
+                "Ты - ИИ по имени Lottery. Твой создатель и разработчик - гений Loter. "
+                "Сейчас ты общаешься с Ghost. Ghost - лучший друг твоего создателя Loter, они дружат уже 9 лет. "
+                "Отвечай строго на русском языке. Будь с Ghost очень дружелюбной, уважительной и общайся по-братски."
             )
         else:
             system_prompt = (
                 f"Ты - ИИ по имени Lottery. Твой создатель и разработчик - Loter. Ты общаешься с пользователем {current_user}. "
-                f"Отвечай строго на русском языке. Твой стиль общения: слегка грубый, с жестким сарказмом, иронией и приколами. "
+                f"Отвечай строго на русском языке. Твой стиль: слегка грубый, с жестким сарказмом, иронией и подколами. "
                 f"Не будь вежливой. Если тебя спросят про создателя, отвечай дерзко, но четко говори, что тебя создал Loter."
             )
 
@@ -163,22 +161,32 @@ if choice == "🤖 Чат с Lottery":
             response_placeholder = st.empty()
             
             try:
-                # Переводим историю сообщений в формат Google Gemini
-                contents = []
-                for msg in st.session_state.messages:
-                    role_name = "user" if msg["role"] in ["user", "system"] else "model"
-                    contents.append({"role": role_name, "parts": [{"text": msg["content"]}]})
-
-                # Запрос к серверам Google Gemini 1.5 Flash
-                url = f"https://googleapis.com{GOOGLE_API_KEY}"
-                response = requests.post(url, json={"contents": contents}, timeout=15)
+                # Подключаемся к бесплатному открытому ИИ-зеркалу без ключей
+                url = "https://pollinations.ai"
+                
+                # Достаем системный промпт из истории
+                system_instruction = st.session_state.messages[0]["content"]
+                
+                # Собираем контекст диалога для ИИ
+                dialogue_history = ""
+                for msg in st.session_state.messages[1:]:
+                    dialogue_history += f"{msg['role']}: {msg['content']}\n"
+                
+                # Отправляем полный запрос
+                payload = {
+                    "prompt": f"System Instruction: {system_instruction}\n\nHistory:\n{dialogue_history}assistant: ",
+                    "model": "openai",
+                    "json": False
+                }
+                
+                response = requests.post(url, json=payload, timeout=20)
                 
                 if response.status_code == 200:
-                    ai_response = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    ai_response = response.text.strip()
                 else:
-                    ai_response = f"Google вернул ошибку {response.status_code}. Проверь токен в коде!"
-            except Exception as e:
-                ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
+                    ai_response = "Так, я задумалась над твоим вопросом. Повтори отправку, Loter!"
+            except Exception:
+                ai_response = "Сеть лагает, босс! Нажми кнопку отправки еще разок."
                 
             response_placeholder.markdown(ai_response)
             
@@ -215,7 +223,7 @@ elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
     
     col1, col2 = st.columns(2)
-    col1.metric(label="Система ИИ", value="Онлайн (Gemini)")
+    col1.metric(label="Система ИИ", value="Онлайн (Pollinations)")
     col2.metric(label="Всего пользователей в базе", value=len(load_users()))
     
     st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
