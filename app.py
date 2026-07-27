@@ -7,11 +7,11 @@ def save_secret_message(sender, text):
         json.dump(messages, f, ensure_ascii=False, indent=4)
 
 # Инициализация внутренней памяти сессии браузера
-if "logged_in" not in str.session_state:
+if "logged_in" not in st.session_state:
     str.session_state.logged_in = False
-if "username" not in str.session_state:
+if "username" not in st.session_state:
     str.session_state.username = None
-if "user_role" not in str.session_state:
+if "user_role" not in st.session_state:
     str.session_state.user_role = None
 
 # --- ИНТЕРФЕЙС ВХОДА И РЕГИСТРАЦИИ ---
