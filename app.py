@@ -157,21 +157,25 @@ if choice == "🤖 Чат с Lottery":
 
     if user_input := st.chat_input("Спроси что-нибудь у Lottery..."):
         st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
-
         with st.chat_message("assistant"):
             response_placeholder = st.empty()
-            completion = client.chat.completions.create(
-                model="", 
-                messages=st.session_state.messages
-            )
-            ai_response = completion.choices.message.content
-            response_placeholder.markdown(ai_response)
             
-        st.session_state.messages.append({"role": "assistant", "content": ai_response})
-
-# --- РАЗДЕЛ 2: СЕКРЕТНЫЙ ЧАТ ДЛЯ ДРУЗЕЙ ---
+            try:
+                # Пробуем получить ответ от бесплатного ИИ
+                completion = client.chat.completions.create(
+                    model="", 
+                    messages=st.session_state.messages
+                )
+                ai_response = completion.choices.message.content
+                
+                # Если ответ пришел пустой, включаем запасной режим
+                if not ai_response:
+                    ai_response = "Ой, мои серверы сейчас перегружены глупыми вопросами. Спроси попозже, Loter!"
+            except Exception:
+                # Если сервер вообще выдал ошибку, Lottery отвечает дерзкой заглушкой
+                ai_response = "Так, Loter, бесплатный сервер сейчас приуныл. Но ты же знаешь, что ты гений, так что попробуй отправить сообщение еще раз!"
+                
+            response_placeholder.markdown(ai_response)
 elif choice == "🤫 Секретный чат (Loter & Ghost)":
     st.title("🤫 Наш секретный чат")
     st.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
