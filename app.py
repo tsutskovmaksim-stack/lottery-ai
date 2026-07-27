@@ -4,10 +4,13 @@ import os
 import requests
 from datetime import datetime
 
-# 1. Базовые настройки страницы
+# 1. Настройки страницы
 st.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
 
-# Имена файлов для保存 данных прямо на сервере
+# Твой официальный стабильный ключ Google Gemini
+GOOGLE_API_KEY = "AQ.Ab8RN6LtTT9aNUpq4ykHH9wxnwT68pcbHD9C7dvwEDz8FFt26A"
+
+# Имена файлов для баз данных
 DB_FILE = "users_db.json"
 SECRET_CHAT_FILE = "secret_chat.json"
 
@@ -41,7 +44,7 @@ def save_secret_message(sender, text):
     with open(SECRET_CHAT_FILE, "w", encoding="utf-8") as f:
         json.dump(messages, f, ensure_ascii=False, indent=4)
 
-# Инициализация внутренней памяти сессии браузера
+# Инициализация сессии браузера
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -134,14 +137,14 @@ if choice == "🤖 Чат с Lottery":
         if current_user == "ghost":
             system_prompt = (
                 "Ты - ИИ по имени Lottery. Твой создатель и единственный разработчик - гений Loter. "
-                "Сейчас ты общаешься с Ghost. Ghost - лучший друг твоего создателя Loter, они дружат уже 9 лет. "
-                "Ты должен отвечать Ghost очень дружелюбно, уважительно и тепло, помогая ему во всем на русском языке."
+                "Сейчас ты общаешься с Ghost. Ghost - лучший друг твоего создателя Loter, они дружат уже 9 лет (с 1 сентября). "
+                "Ты должна отвечать Ghost очень дружелюбно, уважительно и тепло, помогая ему во всем на русском языке."
             )
         else:
             system_prompt = (
                 f"Ты - ИИ по имени Lottery. Твой создатель и разработчик - Loter. Ты общаешься с пользователем {current_user}. "
-                f"Отвечай на русском языке. Твой style общения: слегка грубый, с жестким сарказмом, иронией и приколами. "
-                f"Не будь вежливым. Если тебя спросят про создателя, отвечай дерзко, но четко говори, что тебя создал Loter."
+                f"Отвечай строго на русском языке. Твой стиль общения: слегка грубый, с жестким сарказмом, иронией и приколами. "
+                f"Не будь вежливой. Если тебя спросят про создателя, отвечай дерзко, но четко говори, что тебя создал Loter."
             )
 
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
@@ -160,29 +163,21 @@ if choice == "🤖 Чат с Lottery":
             response_placeholder = st.empty()
             
             try:
-                # Собираем историю сообщений для ИИ
-                prompt_text = ""
+                # Переводим историю сообщений в формат Google Gemini
+                contents = []
                 for msg in st.session_state.messages:
-                    prompt_text += f"{msg['role']}: {msg['content']}\n"
-                prompt_text += "assistant: "
+                    role_name = "user" if msg["role"] in ["user", "system"] else "model"
+                    contents.append({"role": role_name, "parts": [{"text": msg["content"]}]})
 
-                # Отправляем запрос на бесплатный сервер Sambanova
-                response = requests.post(
-                    "https://sambanova.ai",
-                    headers={"Content-Type": "application/json"},
-                    json={
-                        "model": "Meta-Llama-3-8B-Instruct",
-                        "messages": [{"role": "user", "content": prompt_text}],
-                        "stream": False
-                    },
-                    timeout=10
-                )
+                # Запрос к серверам Google Gemini 1.5 Flash
+                url = f"https://googleapis.com{GOOGLE_API_KEY}"
+                response = requests.post(url, json={"contents": contents}, timeout=15)
                 
                 if response.status_code == 200:
-                    ai_response = response.json()["choices"]["message"]["content"].strip()
+                    ai_response = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
                 else:
-                    ai_response = "Так, я задумалась! Мой создатель Loter — гений, а у меня просто забились процессоры. Спроси еще раз!"
-            except Exception:
+                    ai_response = f"Google вернул ошибку {response.status_code}. Проверь токен в коде!"
+            except Exception as e:
                 ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
                 
             response_placeholder.markdown(ai_response)
@@ -220,7 +215,7 @@ elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
     
     col1, col2 = st.columns(2)
-    col1.metric(label="Система ИИ", value="Онлайн (Sambanova)")
+    col1.metric(label="Система ИИ", value="Онлайн (Gemini)")
     col2.metric(label="Всего пользователей в базе", value=len(load_users()))
     
     st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
