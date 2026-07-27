@@ -1,3 +1,38 @@
+import streamlit as st
+import json
+import os
+from datetime import datetime
+from g4f.client import Client
+
+# 1. Базовые настройки страницы
+st.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
+
+# Имена файлов для сохранения данных прямо на сервере
+DB_FILE = "users_db.json"
+SECRET_CHAT_FILE = "secret_chat.json"
+
+# --- ФУНКЦИИ ДЛЯ РАБОТЫ С БАЗОЙ ПОЛЬЗОВАТЕЛЕЙ ---
+def load_users():
+    if os.path.exists(DB_FILE):
+        with open(DB_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "loter": {"password": "m69l0mja", "role": "Admin"},
+        "ghost": {"password": "ghost777", "role": "VIP"}
+    }
+
+def save_user(username, password):
+    users = load_users()
+    users[username.lower()] = {"password": password, "role": "User"}
+    with open(DB_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, ensure_ascii=False, indent=4)
+
+# --- ФУНКЦИИ ДЛЯ РАБОТЫ С СЕКРЕТНЫМ ЧАТОМ ---
+def load_secret_messages():
+    if os.path.exists(SECRET_CHAT_FILE):
+        with open(SECRET_CHAT_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
 
 def save_secret_message(sender, text):
     messages = load_secret_messages()
@@ -8,98 +43,95 @@ def save_secret_message(sender, text):
 
 # Инициализация внутренней памяти сессии браузера
 if "logged_in" not in st.session_state:
-    str.session_state.logged_in = False
+    st.session_state.logged_in = False
 if "username" not in st.session_state:
-    str.session_state.username = None
+    st.session_state.username = None
 if "user_role" not in st.session_state:
-    str.session_state.user_role = None
+    st.session_state.user_role = None
 
 # --- ИНТЕРФЕЙС ВХОДА И РЕГИСТРАЦИИ ---
-if not str.session_state.logged_in:
-    str.title("🎰 Добро пожаловать в проект Lottery")
+if not st.session_state.logged_in:
+    st.title("🎰 Добро пожаловать в проект Lottery")
     
-    tab1, tab2 = str.tabs(["🔑 Войти", "📝 Зарегистрироваться"])
+    tab1, tab2 = st.tabs(["🔑 Войти", "📝 Зарегистрироваться"])
     
     with tab1:
-        str.subheader("Вход в аккаунт")
-        login_name = str.text_input("Username (на английском)", key="login_name").strip().lower()
-        login_pass = str.text_input("Password", type="password", key="login_pass")
+        st.subheader("Вход в аккаунт")
+        login_name = st.text_input("Username (на английском)", key="login_name").strip().lower()
+        login_pass = st.text_input("Password", type="password", key="login_pass")
         
-        if str.button("Войти", key="btn_login"):
+        if st.button("Войти", key="btn_login"):
             users = load_users()
             if login_name in users and users[login_name]["password"] == login_pass:
-                str.session_state.logged_in = True
-                str.session_state.username = login_name
-                str.session_state.user_role = users[login_name]["role"]
-                str.success(f"Успешный вход! Привет, {login_name}.")
-                str.rerun()
+                st.session_state.logged_in = True
+                st.session_state.username = login_name
+                st.session_state.user_role = users[login_name]["role"]
+                st.success(f"Успешный вход! Привет, {login_name}.")
+                st.rerun()
             else:
-                str.error("Неверное имя пользователя или пароль.")
+                st.error("Неверное имя пользователя или пароль.")
                 
     with tab2:
-        str.subheader("Создать новый аккаунт")
-        reg_name = str.text_input("Придумайте Username (английские буквы)", key="reg_name").strip().lower()
-        reg_pass = str.text_input("Придумайте Password", type="password", key="reg_pass")
-        reg_pass_confirm = str.text_input("Повторите Password", type="password", key="reg_pass_confirm")
+        st.subheader("Создать новый аккаунт")
+        reg_name = st.text_input("Придумайте Username (английские буквы)", key="reg_name").strip().lower()
+        reg_pass = st.text_input("Придумайте Password", type="password", key="reg_pass")
+        reg_pass_confirm = st.text_input("Повторите Password", type="password", key="reg_pass_confirm")
         
-        if str.button("Создать аккаунт", key="btn_reg"):
+        if st.button("Создать аккаунт", key="btn_reg"):
             users = load_users()
             if not reg_name.isalnum():
-                str.error("Имя должно состоять только из английских букв и цифр!")
+                st.error("Имя должно состоять только из английских букв и цифр!")
             elif reg_name in ["loter", "ghost"]:
-                str.error("Это имя зарезервировано создателями!")
+                st.error("Это имя зарезервировано создателями!")
             elif reg_name in users:
-                str.error("Такое имя уже занято!")
+                st.error("Такое имя уже занято!")
             elif len(reg_pass) < 4:
-                str.error("Пароль должен быть не менее 4 символов!")
+                st.error("Пароль должен быть не менее 4 символов!")
             elif reg_pass != reg_pass_confirm:
-                str.error("Пароли не совпадают!")
+                st.error("Пароли не совпадают!")
             else:
                 save_user(reg_name, reg_pass)
-                str.success("Аккаунт успешно создан! Теперь откройте вкладку 'Войти'.")
+                st.success("Аккаунт успешно создан! Теперь откройте вкладку 'Войти'.")
                 
-    str.stop()# --- ОСНОВНОЙ ИНТЕРФЕЙС ПОСЛЕ ВХОДА ---
-with str.sidebar:
-    str.write(f"Вы вошли как: **{str.session_state.username}**")
-    str.write(f"Ваш статус: {str.session_state.user_role}")
+    st.stop()
+
+# --- ОСНОВНОЙ ИНТЕРФЕЙС ПОСЛЕ ВХОДА ---
+with st.sidebar:st.write(f"Вы вошли как: **{st.session_state.username}**")
+    st.write(f"Ваш статус: {st.session_state.user_role}")
     
-    if str.button("Выйти из системы"):
-        str.session_state.logged_in = False
-        str.session_state.username = None
-        str.session_state.user_role = None
-        str.session_state.messages = []
-        str.rerun()
+    if st.button("Выйти из системы"):
+        st.session_state.logged_in = False
+        st.session_state.username = None
+        st.session_state.user_role = None
+        st.session_state.messages = []
+        st.rerun()
         
-    str.markdown("---")
+    st.markdown("---")
     
-    # Доступные разделы сайта
     menu_options = ["🤖 Чат с Lottery"]
     
-    # Показываем секретный чат только для Loter и Ghost
-    if str.session_state.username in ["loter", "ghost"]:
+    if st.session_state.username in ["loter", "ghost"]:
         menu_options.append("🤫 Секретный чат (Loter & Ghost)")
         
-    # Показываем админку только для тебя (Loter)
-    if str.session_state.user_role == "Admin":
+    if st.session_state.user_role == "Admin":
         menu_options.append("👑 Админ-панель Loter")
         
-    choice = str.sidebar.radio("Навигация по сайту:", menu_options)
+    choice = st.sidebar.radio("Навигация по сайту:", menu_options)
 
 # --- РАЗДЕЛ 1: ЧАТ С ИИ LOTTERY ---
 if choice == "🤖 Чат с Lottery":
-    str.title("🎰 ИИ-ассистент Lottery")
+    st.title("🎰 ИИ-ассистент Lottery")
     
-    if str.session_state.username == "ghost":
-        str.write("👋 Салют, Ghost! Рад видеть лучшего друга моего босса!")
+    if st.session_state.username == "ghost":
+        st.write("👋 Салют, Ghost! Рад видеть лучшего друга моего босса!")
     else:
-        str.write(f"Задавай вопросы, {str.session_state.username}. Постараюсь ответить не слишком обидно.")
+        st.write(f"Задавай вопросы, {st.session_state.username}. Постараюсь ответить не слишком обидно.")
 
     client = Client()
 
-    if "messages" not in str.session_state or len(str.session_state.messages) == 0:
-        current_user = str.session_state.username
+    if "messages" not in st.session_state or len(st.session_state.messages) == 0:
+        current_user = st.session_state.username
         
-        # Настройка характера ИИ в зависимости от того, кто общается
         if current_user == "ghost":
             system_prompt = (
                 "Тебя зовут Lottery. Твой создатель и разработчик — гений Loter. "
@@ -116,56 +148,63 @@ if choice == "🤖 Чат с Lottery":
                 f"Не будь вежливым. Если спросят про создателя, отвечай дерзко, но четко называй имя Loter."
             )
 
-        str.session_state.messages = [{"role": "system", "content": system_prompt}]
+        st.session_state.messages = [{"role": "system", "content": system_prompt}]
 
-    # Отображение истории сообщений
-    for message in str.session_state.messages:
+    for message in st.session_state.messages:
         if message["role"] != "system":
-            with str.chat_message(message["role"]):
-                str.markdown(message["content"])
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-    # Ввод нового сообщения
-    if user_input := str.chat_input("Спроси что-нибудь у Lottery..."):
-        str.session_state.messages.append({"role": "user", "content": user_input})
-        with str.chat_message("user"):
-            str.markdown(user_input)
+    if user_input := st.chat_input("Спроси что-нибудь у Lottery..."):
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
 
-        with str.chat_message("assistant"):
-            response_placeholder = str.empty()
+        with st.chat_message("assistant"):
+            response_placeholder = st.empty()
             completion = client.chat.completions.create(
                 model="gpt-4o-mini", 
-                messages=str.session_state.messages
+                messages=st.session_state.messages
             )
             ai_response = completion.choices.message.content
             response_placeholder.markdown(ai_response)
             
-        str.session_state.messages.append({"role": "assistant", "content": ai_response})
+        st.session_state.messages.append({"role": "assistant", "content": ai_response})
+
 # --- РАЗДЕЛ 2: СЕКРЕТНЫЙ ЧАТ ДЛЯ ДРУЗЕЙ ---
 elif choice == "🤫 Секретный чат (Loter & Ghost)":
-    str.title("🤫 Наш секретный чат")
-    str.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
+    st.title("🤫 Наш секретный чат")
+    st.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
     
-    if str.button("🔄 Обновить сообщения"):
-        str.rerun()
+    if st.button("🔄 Обновить сообщения"):
+        st.rerun()
         
-    str.markdown("---")
+    st.markdown("---")
     
     secret_msgs = load_secret_messages()
     for msg in secret_msgs:
         name_label = "👑 Loter" if msg["sender"] == "loter" else "👻 Ghost"
-        str.markdown(f"**[{msg['time']}] {name_label}:** {msg['text']}")
+        st.markdown(f"**[{msg['time']}] {name_label}:** {msg['text']}")
         
-    str.markdown("---")
-# --- РАЗДЕЛ 3: АДМИН-ПАНЕЛЬ LOTER ---
-elif choice == "👑 Admin-панель Loter":
-    str.title("👑 Панель управления разработчика Loter")
+    st.markdown("---")
     
-    col1, col2 = str.columns(2)
+    with st.form(key="secret_msg_form", clear_on_submit=True):
+        secret_input = st.text_input("Введите сообщение для друга...", key="sec_input")
+        submit_secret = st.form_submit_button("Отправить 🚀")if submit_secret and secret_input.strip():
+            save_secret_message(st.session_state.username, secret_input.strip())
+            st.success("Отправлено!")
+            st.rerun()
+
+# --- РАЗДЕЛ 3: АДМИН-ПАНЕЛЬ LOTER ---
+elif choice == "👑 Админ-панель Loter":
+    st.title("👑 Панель управления разработчика Loter")
+    
+    col1, col2 = st.columns(2)
     col1.metric(label="Система ИИ", value="Онлайн (g4f)")
     col2.metric(label="Всего пользователей в базе", value=len(load_users()))
     
-    str.markdown("### 👥 Список всех аккаунтов на твоем сайте")
+    st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
     users_list = load_users()
     for u_name, u_info in users_list.items():
         emoji = "👑" if u_info['role'] == "Admin" else ("👻" if u_info['role'] == "VIP" else "👤")
-        str.text(f"{emoji} Ник: {u_name} | Пароль: {u_info['password']} | Роль: {u_info['role']}")
+        st.text(f"{emoji} Ник: {u_name} | Пароль: {u_info['password']} | Роль: {u_info['role']}")
