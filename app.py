@@ -98,7 +98,7 @@ if not st.session_state.logged_in:
 # --- ОСНОВНОЙ ИНТЕРФЕЙС ПОСЛЕ ВХОДА ---
 with st.sidebar:
     st.write(f"Вы вошли как: **{st.session_state.username}**")
-  st.write(f"Ваш статус: {st.session_state.user_role}")
+st.write(f"Ваш статус: {st.session_state.user_role}")
     
     if st.button("Выйти из системы"):
         st.session_state.logged_in = False
