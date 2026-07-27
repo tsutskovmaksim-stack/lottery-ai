@@ -174,7 +174,7 @@ if choice == "🤖 Чат с Lottery":
                 max_new_tokens=500
                 ai_response = response_text.strip()
                 ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
-                response_placeholder.markdown(ai_response)st.session_state.messages.append({"role": "assistant", "content": ai_response})
+                response_placeholder.markdown(ai_response) st.session_state.messages.append({"role": "assistant", "content": ai_response})
 elif choice == "🤫 Секретный чат (Loter & Ghost)":
     st.title("🤫 Наш секретный чат")
     st.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
