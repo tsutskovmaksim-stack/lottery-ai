@@ -1,3 +1,4 @@
+
 import streamlit as st
 import json
 import os
@@ -98,26 +99,26 @@ if not st.session_state.logged_in:
 # --- ОСНОВНОЙ ИНТЕРФЕЙС ПОСЛЕ ВХОДА ---
 with st.sidebar:
     st.write(f"Вы вошли как: **{st.session_state.username}**")
-st.write(f"Ваш статус: {st.session_state.user_role}")
+    st.write(f"Ваш статус: {st.session_state.user_role}")
     
-if st.button("Выйти из системы"):
+    if st.button("Выйти из системы"):
         st.session_state.logged_in = False
         st.session_state.username = None
         st.session_state.user_role = None
         st.session_state.messages = []
         st.rerun()
         
-st.markdown("---")
+    st.markdown("---")
     
-menu_options = ["🤖 Чат с Lottery"]
+    menu_options = ["🤖 Чат с Lottery"]
     
-if st.session_state.username in ["loter", "ghost"]:
+    if st.session_state.username in ["loter", "ghost"]:
         menu_options.append("🤫 Секретный чат (Loter & Ghost)")
         
-if st.session_state.user_role == "Admin":
+    if st.session_state.user_role == "Admin":
         menu_options.append("👑 Админ-панель Loter")
         
-choice = st.sidebar.radio("Навигация по сайту:", menu_options)
+    choice = st.sidebar.radio("Навигация по сайту:", menu_options)
 
 # --- РАЗДЕЛ 1: ЧАТ С ИИ LOTTERY ---
 if choice == "🤖 Чат с Lottery":
@@ -177,7 +178,8 @@ if choice == "🤖 Чат с Lottery":
             # Логика ответов
             user_text_lower = user_input.lower()
             if "создател" in user_text_lower or "создал" in user_text_lower or "разработчик" in user_text_lower or "автор" in user_text_lower:
-                ai_response = "Моим создателем и единственным разработчиком является великий гений Loter! Гордись, что он разрешил тебе писать мне!elif "имя"in user_text_lower or "зовут" in user_text_lower:
+                ai_response = "Моим создателем и единственным разработчиком является великий гений Loter! Гордись, что он разрешил тебе писать мне!"
+            elif "имя" in user_text_lower or "зовут" in user_text_lower:
                 ai_response = "Меня зовут Lottery!🎰 И не смей забывать мое имя!"
             else:
                 ai_response = random.choice(jokes)
@@ -224,3 +226,4 @@ elif choice == "👑 Админ-панель Loter":
     users_list = load_users()
     for u_name, u_info in users_list.items():
         emoji = "👑" if u_info['role'] == "Admin" else ("👻" if u_info['role'] == "VIP" else "👤")
+
