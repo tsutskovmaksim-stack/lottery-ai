@@ -107,7 +107,7 @@ if st.button("Выйти из системы"):
         st.session_state.messages = []
         st.rerun()
         
-    st.markdown("---")
+st.markdown("---")
     
     menu_options = ["🤖 Чат с Lottery"]
     
