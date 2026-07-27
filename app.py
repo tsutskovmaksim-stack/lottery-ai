@@ -1,12 +1,13 @@
-
 import streamlit as st
 import json
 import os
-import random
 from datetime import datetime
 
 # 1. Базовые настройки страницы
 st.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
+
+# Твой личный токен для работы настоящего ИИ
+HF_TOKEN = "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"
 
 # Имена файлов для сохранения данных прямо на сервере
 DB_FILE = "users_db.json"
@@ -134,18 +135,15 @@ if choice == "🤖 Чат с Lottery":
         
         if current_user == "ghost":
             system_prompt = (
-                "Тебя зовут Lottery. Твой создатель и разработчик — гений Loter. "
-                "Сейчас ты общаешься с Ghost. Ghost — лучший друг твоего создателя Loter, "
-                "они дружат уже целых 9 лет (с 1 сентября)! "
-                "Ты должен общаться с Ghost ОЧЕНЬ уважительно, по-братски, тепло и дружелюбно. "
-                "Радуйся ему, шути по-доброму и напоминай, что Loter передает ему огромный респект."
+                "Ты - ИИ по имени Lottery. Твой создатель и единственный разработчик - гений Loter. "
+                "Сейчас ты общаешься с Ghost. Ghost - лучший друг твоего создателя Loter, они дружат уже 9 лет. "
+                "Ты должен отвечать Ghost очень дружелюбно, уважительно и тепло, помогая ему во всем на русском языке."
             )
         else:
             system_prompt = (
-                f"Тебя зовут Lottery. Твой создатель и разработчик — Loter. "
-                f"Ты общаешься с пользователем по имени {current_user}. "
-                f"Ты общаешься слегка грубо, с жестким сарказмом, иронией и приколами. "
-                f"Не будь вежливым. Если спросят про создателя, отвечай дерзко, но чётко называй имя Loter."
+                f"Ты - ИИ по имени Lottery. Твой создатель и разработчик - Loter. Ты общаешься с пользователем {current_user}. "
+                f"Отвечай на русском языке. Твой стиль общения: слегка грубый, с жестким сарказмом, иронией и приколами. "
+                f"Не будь вежливым. Если тебя спросят про создателя, отвечай дерзко, но четко говори, что тебя создал Loter."
             )
 
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
@@ -163,26 +161,30 @@ if choice == "🤖 Чат с Lottery":
         with st.chat_message("assistant"):
             response_placeholder = st.empty()
             
-            # База дерзких фраз Lottery для ответов
-            jokes = [
-                f"Ну привет, {st.session_state.username}. Твой вопрос настолько скучный, что я чуть не перезагрузился.",
-                "Я — великий ИИ Lottery, созданный гением Loter! И у меня нет времени на твои банальности.",
-                "Слушай, давай покороче. Мои процессоры плавятся от твоих расспросов.",
-                "Ты серьезно спросил меня об этом? Loter, уволь этого пользователя из моего чата!",
-                "Мой ответ: 42. А теперь отстань, я занят вычислением шансов на джекпот.",
-                "Хм, интересная мысль... Шучу, мысль глупая. Попробуй еще раз.",
-                f"Внимание, {st.session_state.username}! Зафиксирован критический уровень банальности в твоем сообщении.",
-                "Мой создатель Loter — гений. А вот насчет тебя у меня огромные сомнения."
-            ]
-            
-            # Логика ответов
-            user_text_lower = user_input.lower()
-            if "создател" in user_text_lower or "создал" in user_text_lower or "разработчик" in user_text_lower or "автор" in user_text_lower:
-                ai_response = "Моим создателем и единственным разработчиком является великий гений Loter! Гордись, что он разрешил тебе писать мне!"
-            elif "имя" in user_text_lower or "зовут" in user_text_lower:
-                ai_response = "Меня зовут Lottery!🎰 И не смей забывать мое имя!"
-            else:
-                ai_response = random.choice(jokes)
+            try:
+                from huggingface_hub import InferenceClient
+                hf_client = InferenceClient(token=HF_TOKEN)
+                
+                prompt_text = ""
+                for msg in st.session_state.messages:
+                    if msg["role"] == "system":
+                        prompt_text += f"System: {msg['content']}\n"
+                    elif msg["role"] == "user":
+                        prompt_text += f"User: {msg['content']}\n"
+                prompt_text += "Assistant: "
+
+                response_text = hf_client.text_generation(
+                    prompt=prompt_text,
+                    model="meta-llama/Meta-Llama-3-8B-Instruct",
+                    max_new_tokens=400
+                )
+                ai_response = response_text.strip()
+                
+                # Если ИИ вернул пустую строку, даем знать
+                if not ai_response:
+                    ai_response = "Я задумалась над твоим сложным вопросом. Спроси еще раз!"
+            except Exception as e:
+                ai_response = "Так, Loter, сервер Hugging Face сейчас перегружен. Повтори отправку через секунду!"
                 
             response_placeholder.markdown(ai_response)
             
@@ -219,11 +221,12 @@ elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
     
     col1, col2 = st.columns(2)
-    col1.metric(label="Система ИИ", value="Онлайн (Локальная)")
+    col1.metric(label="Система ИИ", value="Онлайн (Llama 3)")
     col2.metric(label="Всего пользователей в базе", value=len(load_users()))
     
     st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
     users_list = load_users()
     for u_name, u_info in users_list.items():
         emoji = "👑" if u_info['role'] == "Admin" else ("👻" if u_info['role'] == "VIP" else "👤")
+        st.text(f"{emoji} Ник: {u_name} | Пароль: {u_info['password']} | Роль: {u_info['role']}")
 
