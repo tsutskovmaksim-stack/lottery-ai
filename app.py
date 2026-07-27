@@ -2,7 +2,6 @@ import streamlit as st
 import json
 import os
 from datetime import datetime
-from g4f.client import Client
 
 # 1. Базовые настройки страницы
 st.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
