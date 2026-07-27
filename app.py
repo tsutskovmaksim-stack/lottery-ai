@@ -1,39 +1,3 @@
-import streamlit as str
-import json
-import os
-from datetime import datetime
-from g4f.client import Client
-
-# 1. Базовые настройки страницы
-str.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
-
-# Имена файлов для сохранения данных прямо на сервере
-DB_FILE = "users_db.json"
-SECRET_CHAT_FILE = "secret_chat.json"
-
-# --- ФУНКЦИИ ДЛЯ РАБОТЫ С БАЗОЙ ПОЛЬЗОВАТЕЛЕЙ ---
-def load_users():
-    if os.path.exists(DB_FILE):
-        with open(DB_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    # Аккаунты создателей по умолчанию, если файл еще не создан
-    return {
-        "loter": {"password": "m69l0mja", "role": "Admin"},
-        "ghost": {"password": "ghost777", "role": "VIP"}
-    }
-
-def save_user(username, password):
-    users = load_users()
-    users[username.lower()] = {"password": password, "role": "User"}
-    with open(DB_FILE, "w", encoding="utf-8") as f:
-        json.dump(users, f, ensure_ascii=False, indent=4)
-
-# --- ФУНКЦИИ ДЛЯ РАБОТЫ С СЕКРЕТНЫМ ЧАТОМ ---
-def load_secret_messages():
-    if os.path.exists(SECRET_CHAT_FILE):
-        with open(SECRET_CHAT_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
 
 def save_secret_message(sender, text):
     messages = load_secret_messages()
