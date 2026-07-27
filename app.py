@@ -163,7 +163,7 @@ if choice == "🤖 Чат с Lottery":
         with st.chat_message("assistant"):
             response_placeholder = st.empty()
             completion = client.chat.completions.create(
-                model="gpt-4o-mini", 
+                model="", 
                 messages=st.session_state.messages
             )
             ai_response = completion.choices.message.content
