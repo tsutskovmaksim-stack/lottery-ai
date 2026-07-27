@@ -174,7 +174,6 @@ if choice == "🤖 Чат с Lottery":
                 model="meta-llama/Meta-Llama-3-8B-Instruct",
                 max_new_tokens=500
                 ai_response = response_text.strip()
-            except Exception:
                 ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
                 
             response_placeholder.markdown(ai_response)
