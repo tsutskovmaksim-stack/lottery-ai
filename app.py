@@ -126,7 +126,7 @@ with st.sidebar:
             st.rerun()
 
 # --- РАЗДЕЛ 3: АДМИН-ПАНЕЛЬ LOTER ---
-     elif choice == "👑 Админ-панель Loter":
+      elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
     
     col1, col2 = st.columns(2)
