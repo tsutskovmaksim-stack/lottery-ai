@@ -193,7 +193,7 @@ elif choice == "🤫 Секретный чат (Loter & Ghost)":
     submit_secret = st.form_submit_button("Отправить 🚀")
     save_secret_message(st.session_state.username, secret_input.strip())
     st.success("Отправлено!")
-            st.rerun()
+        st.rerun()
 
 # --- РАЗДЕЛ 3: АДМИН-ПАНЕЛЬ LOTER ---
 elif choice == "👑 Админ-панель Loter":
