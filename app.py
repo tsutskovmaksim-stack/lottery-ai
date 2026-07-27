@@ -169,7 +169,6 @@ if choice == "🤖 Чат с Lottery":
                     ai_response = "Меня зовут Lottery!🎰 И не смей забывать мое имя!"
                 else:
                     ai_response = random.choice(jokes)
-            except Exception:
                 ai_response = "Так, Loter, даже локальный скрипт чихает. Нажми отправку еще раз!"
                     prompt=prompt_text,
                     model="meta-llama/Meta-Llama-3-8B-Instruct",
