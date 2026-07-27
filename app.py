@@ -108,7 +108,7 @@ if st.button("Выйти из системы"):
         
 st.markdown("---")
     
-    menu_options = ["🤖 Чат с Lottery"]
+menu_options = ["🤖 Чат с Lottery"]
     
     if st.session_state.username in ["loter", "ghost"]:
         menu_options.append("🤫 Секретный чат (Loter & Ghost)")
