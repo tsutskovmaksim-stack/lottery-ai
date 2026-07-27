@@ -175,7 +175,7 @@ if choice == "🤖 Чат с Lottery":
                 ai_response = response_text.strip()
                 ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
                 response_placeholder.markdown(ai_response)
-elif choice == "🤫 Секретный чат (Loter & Ghost)":
+ elif choice == "🤫 Секретный чат (Loter & Ghost)":
     st.title("🤫 Наш секретный чат")
     st.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
     
