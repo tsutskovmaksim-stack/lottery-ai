@@ -147,27 +147,13 @@ if choice == "🤖 Чат с Lottery":
 
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
 
-    for message in st.session_state.messages:
-        if message["role"] != "system":
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-    if user_input := st.chat_input("Спроси что-нибудь у Lottery..."):
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
-
-        with st.chat_message("assistant"):
-            response_placeholder = st.empty()
-            
-            try:
+    try:
                 from huggingface_hub import InferenceClient
                 hf_client = InferenceClient()
-                
-                prompt_text = ""
-                for msg in st.session_state.messages:
-                    if msg["role"] == "system":
-                        prompt_text += f"System: {msg['content']}\n"
+                ...
+                ai_response = response_text.strip()
+            except Exception:
+                ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
                     elif msg["role"] == "user":
                         prompt_text += f"User: {msg['content']}\n"
                 prompt_text += "Assistant: "
