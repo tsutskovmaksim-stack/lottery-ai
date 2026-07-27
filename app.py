@@ -190,6 +190,7 @@ elif choice == "🤫 Секретный чат (Loter & Ghost)":
         name_label = "👑 Loter" if msg["sender"] == "loter" else "👻 Ghost"
         st.markdown(f"**[{msg['time']}] {name_label}:** {msg['text']}")
   with st.form(key="secret_msg_form", clear_on_submit=True)
+
         secret_input = st.text_input("Введите сообщение для друга...", key="sec_input")
         submit_secret = st.form_submit_button("Отправить 🚀")
         
