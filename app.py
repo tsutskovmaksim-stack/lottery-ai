@@ -152,22 +152,29 @@ if choice == "🤖 Чат с Lottery":
 
     for message in st.session_state.messages:
         if message["role"] != "system":
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-    if user_input := st.chat_input("Спроси что-нибудь у Lottery..."):
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("assistant"):
-            response_placeholder = st.empty()
-            
             try:
-                # Пробуем получить ответ от бесплатного ИИ
-                completion = client.chat.completions.create(
-                    model="gpt-4o-mini", 
-                    provider="DuckDuckGo",
-                    messages=st.session_state.messages
+                # Подключаемся к стабильному бесплатному серверу Hugging Face
+                from huggingface_hub import InferenceClient
+                hf_client = InferenceClient()
+                
+                # Собираем текст из истории сообщений для отправки
+                prompt_text = ""
+                for msg in st.session_state.messages:
+                    if msg["role"] == "system":
+                        prompt_text += f"System: {msg['content']}\n"
+                    elif msg["role"] == "user":
+                        prompt_text += f"User: {msg['content']}\n"
+                prompt_text += "Assistant: "
+
+                # Получаем мгновенный ответ от модели Llama
+                response_text = hf_client.text_generation(
+                    prompt=prompt_text,
+                    model="meta-llama/Meta-Llama-3-8B-Instruct",
+                    max_new_tokens=500
                 )
-                ai_response = completion.choices.message.content
+                ai_response = response_text.strip()
+            except Exception:
+                ai_response = "Так, Loter, даже резервный сервер чихает. Нажми отправку еще раз!"
                 
                 # Если ответ пришел пустой, включаем запасной режим
                 if not ai_response:
