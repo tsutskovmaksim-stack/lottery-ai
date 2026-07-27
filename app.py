@@ -161,30 +161,26 @@ if choice == "🤖 Чат с Lottery":
             response_placeholder = st.empty()
             
             try:
-                # Подключаемся к бесплатному открытому ИИ-зеркалу без ключей
-                url = "https://pollinations.ai"
+                # Настройка характера для отправки на сервер
+                current_user = st.session_state.username
+                if current_user == "ghost":
+                    system_instruction = "Ты - ИИ Lottery. Твой создатель - Loter. Ghost - лучший друг Loter. Отвечай Ghost дружелюбно, по-братски и строго на русском языке."
+                else:
+                    system_instruction = "Ты - ИИ Lottery. Твой создатель - Loter. Отвечай строго на русском языке. Общайся грубо, дерзко, с жестким сарказмом и приколами."
                 
-                # Достаем системный промпт из истории
-                system_instruction = st.session_state.messages[0]["content"]
-                
-                # Собираем контекст диалога для ИИ
-                dialogue_history = ""
-                for msg in st.session_state.messages[1:]:
-                    dialogue_history += f"{msg['role']}: {msg['content']}\n"
-                
-                # Отправляем полный запрос
-                payload = {
-                    "prompt": f"System Instruction: {system_instruction}\n\nHistory:\n{dialogue_history}assistant: ",
-                    "model": "openai",
-                    "json": False
+                # Короткий и надежный текстовый запрос без ключей
+                url = f"https://pollinations.ai{requests.utils.quote(user_input)}"
+                params = {
+                    "system": system_instruction,
+                    "model": "openai"
                 }
                 
-                response = requests.post(url, json=payload, timeout=20)
+                response = requests.get(url, params=params, timeout=15)
                 
                 if response.status_code == 200:
                     ai_response = response.text.strip()
                 else:
-                    ai_response = "Так, я задумалась над твоим вопросом. Повтори отправку, Loter!"
+                    ai_response = "Так, я задумалась. Нажми кнопку отправки еще раз, Loter!"
             except Exception:
                 ai_response = "Сеть лагает, босс! Нажми кнопку отправки еще разок."
                 
