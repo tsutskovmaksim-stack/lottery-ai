@@ -142,19 +142,28 @@ if choice == "🤖 Чат с Lottery":
                 f"Тебя зовут Lottery. Твой создатель и разработчик — Loter. "
                 f"Ты общаешься с пользователем по имени {current_user}. "
                 f"Ты общаешься слегка грубо, с жестким сарказмом, иронией и приколами. "
-                f"Не будь вежливым. Если спросят про создателя, отвечай дерзко, но четко называй имя Loter."
+                f"Не будь вежливым. Если спросят про создателя, отвечай дерзко, но чётко называй имя Loter."
             )
 
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
 
     for message in st.session_state.messages:
         if message["role"] != "system":
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+    if user_input := st.chat_input("Спроси что-нибудь у Lottery..."):
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        with st.chat_message("assistant"):
+            response_placeholder = st.empty()
+            
             try:
-                # Подключаемся к стабильному бесплатному серверу Hugging Face
                 from huggingface_hub import InferenceClient
                 hf_client = InferenceClient()
                 
-                # Собираем текст из истории сообщений для отправки
                 prompt_text = ""
                 for msg in st.session_state.messages:
                     if msg["role"] == "system":
@@ -163,7 +172,6 @@ if choice == "🤖 Чат с Lottery":
                         prompt_text += f"User: {msg['content']}\n"
                 prompt_text += "Assistant: "
 
-                # Получаем мгновенный ответ от модели Llama
                 response_text = hf_client.text_generation(
                     prompt=prompt_text,
                     model="meta-llama/Meta-Llama-3-8B-Instruct",
@@ -171,16 +179,11 @@ if choice == "🤖 Чат с Lottery":
                 )
                 ai_response = response_text.strip()
             except Exception:
-                ai_response = "Так, Loter, даже резервный сервер чихает. Нажми отправку еще раз!"
-                
-                # Если ответ пришел пустой, включаем запасной режим
-                if not ai_response:
-                    ai_response = "Ой, мои серверы сейчас перегружены глупыми вопросами. Спроси попозже, Loter!"
-            except Exception:
-                # Если сервер вообще выдал ошибку, Lottery отвечает дерзкой заглушкой
-                ai_response = "Так, Loter, бесплатный сервер сейчас приуныл. Но ты же знаешь, что ты гений, так что попробуй отправить сообщение еще раз!"
+                ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
                 
             response_placeholder.markdown(ai_response)
+            
+        st.session_state.messages.append({"role": "assistant", "content": ai_response})
 elif choice == "🤫 Секретный чат (Loter & Ghost)":
     st.title("🤫 Наш секретный чат")
     st.write("Сюда нет доступа обычным юзерам. Здесь переписываются только создатель Loter и его лучший друг Ghost.")
