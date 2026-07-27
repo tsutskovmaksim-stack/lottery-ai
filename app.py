@@ -149,16 +149,28 @@ if choice == "🤖 Чат с Lottery":
 
     try:
                 from huggingface_hub import InferenceClient
-                hf_client = InferenceClient()
-                ...
-                ai_response = response_text.strip()
+                # Список приколов Lottery для ответов
+                jokes = [
+                    f"Ну привет, {st.session_state.username}. Твой вопрос настолько скучный, что я чуть не перезагрузился.",
+                    "Я — великий ИИ Lottery, созданный гением Loter! И у меня нет времени на твои банальности.",
+                    "Слушай, давай покороче. Мои процессоры плавятся от твоих расспросов.",
+                    "Ты серьезно спросил меня об этом? Loter, уволь этого пользователя из моего чата!",
+                    "Мой ответ: 42. А теперь отстань, я занят вычислением шансов на джекпот.",
+                    "Хм, интересная мысль... Шучу, мысль глупая. Попробуй еще раз.",
+                    f"Внимание, {st.session_state.username}! Зафиксирован критический уровень банальности в твоем сообщении.",
+                    "Мой создатель Loter — гений. А вот насчет тебя у меня огромные сомнения."
+                ]
+                
+                # Логика быстрых ответов
+                user_text_lower = user_input.lower()
+                if "создател" in user_text_lower or "создал" in user_text_lower or "разработчик" in user_text_lower or "автор" in user_text_lower:
+                    ai_response = "Моим создателем и единственным разработчиком является великий гений Loter! Гордись, что он разрешил тебе писать мне!"
+                elif "имя" in user_text_lower or "зовут" in user_text_lower:
+                    ai_response = "Меня зовут Lottery!🎰 И не смей забывать мое имя!"
+                else:
+                    ai_response = random.choice(jokes)
             except Exception:
-                ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
-                    elif msg["role"] == "user":
-                        prompt_text += f"User: {msg['content']}\n"
-                prompt_text += "Assistant: "
-
-                response_text = hf_client.text_generation(
+                ai_response = "Так, Loter, даже локальный скрипт чихает. Нажми отправку еще раз!"
                     prompt=prompt_text,
                     model="meta-llama/Meta-Llama-3-8B-Instruct",
                     max_new_tokens=500
