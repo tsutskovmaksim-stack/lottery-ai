@@ -176,7 +176,6 @@ if choice == "🤖 Чат с Lottery":
             response_placeholder.markdown(ai_response)
             
         str.session_state.messages.append({"role": "assistant", "content": ai_response})
-
 # --- РАЗДЕЛ 2: СЕКРЕТНЫЙ ЧАТ ДЛЯ ДРУЗЕЙ ---
 elif choice == "🤫 Секретный чат (Loter & Ghost)":
     str.title("🤫 Наш секретный чат")
@@ -188,20 +187,11 @@ elif choice == "🤫 Секретный чат (Loter & Ghost)":
     str.markdown("---")
     
     secret_msgs = load_secret_messages()
-    for msg in secret_msgs:name_label = "👑 Loter" if msg["sender"] == "loter" else "👻 Ghost"
+    for msg in secret_msgs:
+        name_label = "👑 Loter" if msg["sender"] == "loter" else "👻 Ghost"
         str.markdown(f"**[{msg['time']}] {name_label}:** {msg['text']}")
         
     str.markdown("---")
-    
-    with str.form(key="secret_msg_form", clear_on_submit=True):
-        secret_input = str.text_input("Введите сообщение для друга...", key="sec_input")
-        submit_secret = str.form_submit_button("Отправить 🚀")
-        
-        if submit_secret and secret_input.strip():
-            save_secret_message(str.session_state.username, secret_input.strip())
-            str.success("Отправлено!")
-            str.rerun()
-
 # --- РАЗДЕЛ 3: АДМИН-ПАНЕЛЬ LOTER ---
 elif choice == "👑 Admin-панель Loter":
     str.title("👑 Панель управления разработчика Loter")
