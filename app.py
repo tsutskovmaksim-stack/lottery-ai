@@ -126,8 +126,6 @@ if choice == "🤖 Чат с Lottery":
     else:
         st.write(f"Задавай вопросы, {st.session_state.username}. Постараюсь ответить не слишком обидно.")
 
-    client = Client()
-
     if "messages" not in st.session_state or len(st.session_state.messages) == 0:
         current_user = st.session_state.username
         
