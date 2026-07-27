@@ -1,15 +1,13 @@
 import streamlit as st
 import json
 import os
+import requests
 from datetime import datetime
 
 # 1. Базовые настройки страницы
 st.set_page_config(page_title="Lottery AI", page_icon="🎰", layout="wide")
 
-# Твой личный токен для работы настоящего ИИ
-HF_TOKEN = "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"
-
-# Имена файлов для сохранения данных прямо на сервере
+# Имена файлов для保存 данных прямо на сервере
 DB_FILE = "users_db.json"
 SECRET_CHAT_FILE = "secret_chat.json"
 
@@ -142,7 +140,7 @@ if choice == "🤖 Чат с Lottery":
         else:
             system_prompt = (
                 f"Ты - ИИ по имени Lottery. Твой создатель и разработчик - Loter. Ты общаешься с пользователем {current_user}. "
-                f"Отвечай на русском языке. Твой стиль общения: слегка грубый, с жестким сарказмом, иронией и приколами. "
+                f"Отвечай на русском языке. Твой style общения: слегка грубый, с жестким сарказмом, иронией и приколами. "
                 f"Не будь вежливым. Если тебя спросят про создателя, отвечай дерзко, но четко говори, что тебя создал Loter."
             )
 
@@ -162,29 +160,30 @@ if choice == "🤖 Чат с Lottery":
             response_placeholder = st.empty()
             
             try:
-                from huggingface_hub import InferenceClient
-                hf_client = InferenceClient(token=HF_TOKEN)
-                
+                # Собираем историю сообщений для ИИ
                 prompt_text = ""
                 for msg in st.session_state.messages:
-                    if msg["role"] == "system":
-                        prompt_text += f"System: {msg['content']}\n"
-                    elif msg["role"] == "user":
-                        prompt_text += f"User: {msg['content']}\n"
-                prompt_text += "Assistant: "
+                    prompt_text += f"{msg['role']}: {msg['content']}\n"
+                prompt_text += "assistant: "
 
-                response_text = hf_client.text_generation(
-                    prompt=prompt_text,
-                    model="meta-llama/Meta-Llama-3-8B-Instruct",
-                    max_new_tokens=400
+                # Отправляем запрос на бесплатный сервер Sambanova
+                response = requests.post(
+                    "https://sambanova.ai",
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "model": "Meta-Llama-3-8B-Instruct",
+                        "messages": [{"role": "user", "content": prompt_text}],
+                        "stream": False
+                    },
+                    timeout=10
                 )
-                ai_response = response_text.strip()
                 
-                # Если ИИ вернул пустую строку, даем знать
-                if not ai_response:
-                    ai_response = "Я задумалась над твоим сложным вопросом. Спроси еще раз!"
-            except Exception as e:
-                ai_response = "Так, Loter, сервер Hugging Face сейчас перегружен. Повтори отправку через секунду!"
+                if response.status_code == 200:
+                    ai_response = response.json()["choices"]["message"]["content"].strip()
+                else:
+                    ai_response = "Так, я задумалась! Мой создатель Loter — гений, а у меня просто забились процессоры. Спроси еще раз!"
+            except Exception:
+                ai_response = "Так, Loter, сервер немного задумался. Нажми отправку еще раз!"
                 
             response_placeholder.markdown(ai_response)
             
@@ -221,7 +220,7 @@ elif choice == "👑 Админ-панель Loter":
     st.title("👑 Панель управления разработчика Loter")
     
     col1, col2 = st.columns(2)
-    col1.metric(label="Система ИИ", value="Онлайн (Llama 3)")
+    col1.metric(label="Система ИИ", value="Онлайн (Sambanova)")
     col2.metric(label="Всего пользователей в базе", value=len(load_users()))
     
     st.markdown("### 👥 Список всех аккаунтов на твоем сайте")
