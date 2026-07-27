@@ -170,7 +170,7 @@ if choice == "🤖 Чат с Lottery":
                 else:
                     ai_response = random.choice(jokes)
                 ai_response = "Так, Loter, даже локальный скрипт чихает. Нажми отправку еще раз!"
-                    prompt=prompt_text,
+                prompt=prompt_text,
                     model="meta-llama/Meta-Llama-3-8B-Instruct",
                     max_new_tokens=500
                 )
