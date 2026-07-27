@@ -163,7 +163,8 @@ if choice == "🤖 Чат с Lottery":
             try:
                 # Пробуем получить ответ от бесплатного ИИ
                 completion = client.chat.completions.create(
-                    model="", 
+                    model="claude-3.5-sonnet", 
+                    provider="DuckDuckGo",
                     messages=st.session_state.messages
                 )
                 ai_response = completion.choices.message.content
